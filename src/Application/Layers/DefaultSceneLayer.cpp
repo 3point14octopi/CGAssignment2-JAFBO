@@ -136,9 +136,9 @@ void DefaultSceneLayer::_CreateScene()
 
 
 		// Load in the meshes
-		MeshResource::Sptr monkeyMesh = ResourceManager::CreateAsset<MeshResource>("Monkey.obj");
-		MeshResource::Sptr shipMesh   = ResourceManager::CreateAsset<MeshResource>("fenrir.obj");
-
+		//MeshResource::Sptr monkeyMesh = ResourceManager::CreateAsset<MeshResource>("Monkey.obj");
+		//MeshResource::Sptr shipMesh   = ResourceManager::CreateAsset<MeshResource>("fenrir.obj");
+		
 		MeshResource::Sptr BathroomMesh = ResourceManager::CreateAsset<MeshResource>("gameModels/megaBathroom.obj");
 		MeshResource::Sptr HandMesh     = ResourceManager::CreateAsset<MeshResource>("gameModels/handIdleMesh-3.obj");
 		MeshResource::Sptr ToiletMesh   = ResourceManager::CreateAsset<MeshResource>("gameModels/toilet.obj");
@@ -233,6 +233,99 @@ void DefaultSceneLayer::_CreateScene()
 			boxMaterial->Set("u_Material.Shininess", 0.1f);
 			boxMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
+
+		////////////////////////////////////////////////////////////////////
+		Material::Sptr BathroomMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			BathroomMaterial->Name = "BathroomMaterial";
+			BathroomMaterial->Set("u_Material.AlbedoMap", BathroomTex);
+			BathroomMaterial->Set("u_Material.Shininess", 0.1f);
+			BathroomMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr HandMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			HandMaterial->Name = "HandMaterial";
+			HandMaterial->Set("u_Material.AlbedoMap", HandTex);
+			HandMaterial->Set("u_Material.Shininess", 0.1f);
+			HandMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr HandCleanMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			boxMaterial->Name = "Box";
+			boxMaterial->Set("u_Material.AlbedoMap", HandCleanTex);
+			boxMaterial->Set("u_Material.Shininess", 0.1f);
+			boxMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr HandDirtyMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			HandDirtyMaterial->Name = "HandDirtyMaterial";
+			HandDirtyMaterial->Set("u_Material.AlbedoMap", HandDirtyTex);
+			HandDirtyMaterial->Set("u_Material.Shininess", 0.1f);
+			HandDirtyMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr HandDuckMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			HandDuckMaterial->Name = "HandDuckMaterial";
+			HandDuckMaterial->Set("u_Material.AlbedoMap", HandDuckTex);
+			HandDuckMaterial->Set("u_Material.Shininess", 0.1f);
+			HandDuckMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr DuckMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			DuckMaterial->Name = "DuckMaterial";
+			DuckMaterial->Set("u_Material.AlbedoMap", DuckTex);
+			DuckMaterial->Set("u_Material.Shininess", 0.1f);
+			DuckMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr ToiletMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			ToiletMaterial->Name = "ToiletMaterial";
+			ToiletMaterial->Set("u_Material.AlbedoMap", ToiletTex);
+			ToiletMaterial->Set("u_Material.Shininess", 0.1f);
+			ToiletMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr DirtyToiletMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			DirtyToiletMaterial->Name = "DirtyToiletMaterial";
+			DirtyToiletMaterial->Set("u_Material.AlbedoMap", DirtyToiletTex);
+			DirtyToiletMaterial->Set("u_Material.Shininess", 0.1f);
+			DirtyToiletMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr SoapMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			SoapMaterial->Name = "SoapMaterial";
+			SoapMaterial->Set("u_Material.AlbedoMap", boxTexture);
+			SoapMaterial->Set("u_Material.Shininess", 0.1f);
+			SoapMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr SpilledSoapMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			SpilledSoapMaterial->Name = "SpilledSoapMaterial";
+			SpilledSoapMaterial->Set("u_Material.AlbedoMap", SpilledSoapTex);
+			SpilledSoapMaterial->Set("u_Material.Shininess", 0.1f);
+			SpilledSoapMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+		Material::Sptr LineMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		{
+			LineMaterial->Name = "LineMaterial";
+			LineMaterial->Set("u_Material.AlbedoMap", LineTex);
+			LineMaterial->Set("u_Material.Shininess", 0.1f);
+			LineMaterial->Set("u_Material.NormalMap", normalMapDefault);
+		}
+
+
+
+		////////////////////////////////////////////////////////////////////
 
 		// This will be the reflective material, we'll make the whole thing 90% reflective
 		Material::Sptr monkeyMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
@@ -361,15 +454,143 @@ void DefaultSceneLayer::_CreateScene()
 		// Set up the scene's camera
 		GameObject::Sptr camera = scene->MainCamera->GetGameObject()->SelfRef();
 		{
-			camera->SetPosition({ -9, -6, 15 });
+			camera->SetPosition({ 1, 1, 1 });
 			camera->LookAt(glm::vec3(0.0f));
 
 			camera->Add<SimpleCameraControl>();
 
 		}
 
+		/////////////////////////////////////////////////////////////////////
+
+		GameObject::Sptr BathroomModel = scene->CreateGameObject("BathroomModel");
+		{
+			// Set position in the scene
+			BathroomModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+
+			// Add some behaviour that relies on the physics body
+			BathroomModel->Add<JumpBehaviour>();
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = BathroomModel->Add<RenderComponent>();
+			renderer->SetMesh(BathroomMesh);
+			renderer->SetMaterial(BathroomMaterial);
+
+			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
+			TriggerVolume::Sptr trigger = BathroomModel->Add<TriggerVolume>();
+			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+
+			BathroomModel->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr DuckModel = scene->CreateGameObject("DuckModel");
+		{
+			// Set position in the scene
+			DuckModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+
+			// Add some behaviour that relies on the physics body
+			DuckModel->Add<JumpBehaviour>();
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = DuckModel->Add<RenderComponent>();
+			renderer->SetMesh(DuckMesh);
+			renderer->SetMaterial(DuckMaterial);
+
+			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
+			TriggerVolume::Sptr trigger = DuckModel->Add<TriggerVolume>();
+			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+
+			DuckModel->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr ToiletModel = scene->CreateGameObject("ToiletModel");
+		{
+			// Set position in the scene
+			ToiletModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+
+			// Add some behaviour that relies on the physics body
+			ToiletModel->Add<JumpBehaviour>();
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = ToiletModel->Add<RenderComponent>();
+			renderer->SetMesh(ToiletMesh);
+			renderer->SetMaterial(ToiletMaterial);
+
+			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
+			TriggerVolume::Sptr trigger = ToiletModel->Add<TriggerVolume>();
+			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+
+			ToiletModel->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr DirtyToiletModel = scene->CreateGameObject("DirtyToiletModel");
+		{
+			// Set position in the scene
+			DirtyToiletModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+
+			// Add some behaviour that relies on the physics body
+			DirtyToiletModel->Add<JumpBehaviour>();
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = DirtyToiletModel->Add<RenderComponent>();
+			renderer->SetMesh(ToiletMesh);
+			renderer->SetMaterial(DirtyToiletMaterial);
+
+			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
+			TriggerVolume::Sptr trigger = DirtyToiletModel->Add<TriggerVolume>();
+			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+
+			DirtyToiletModel->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr SoapModel = scene->CreateGameObject("SoapModel");
+		{
+			// Set position in the scene
+			SoapModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+
+			// Add some behaviour that relies on the physics body
+			SoapModel->Add<JumpBehaviour>();
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = SoapModel->Add<RenderComponent>();
+			renderer->SetMesh(SoapMesh);
+			renderer->SetMaterial(SoapMaterial);
+
+			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
+			TriggerVolume::Sptr trigger = SoapModel->Add<TriggerVolume>();
+			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+
+			SoapModel->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr SpilledSoapModel = scene->CreateGameObject("SpilledSoapModel");
+		{
+			// Set position in the scene
+			SpilledSoapModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+
+			// Add some behaviour that relies on the physics body
+			SpilledSoapModel->Add<JumpBehaviour>();
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = SpilledSoapModel->Add<RenderComponent>();
+			renderer->SetMesh(SpilledMesh);
+			renderer->SetMaterial(SpilledSoapMaterial);
+
+			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
+			TriggerVolume::Sptr trigger = SpilledSoapModel->Add<TriggerVolume>();
+			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+
+			SpilledSoapModel->Add<TriggerVolumeEnterBehaviour>();
+		}
 
 
+		///////////////////////////////////////////////////////////////////////
 
 		GuiBatcher::SetDefaultTexture(ResourceManager::CreateAsset<Texture2D>("textures/ui-sprite.png"));
 		GuiBatcher::SetDefaultBorderRadius(8);
