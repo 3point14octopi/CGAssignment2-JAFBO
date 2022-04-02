@@ -454,8 +454,10 @@ void DefaultSceneLayer::_CreateScene()
 		// Set up the scene's camera
 		GameObject::Sptr camera = scene->MainCamera->GetGameObject()->SelfRef();
 		{
-			camera->SetPosition({ 1, 1, 1 });
-			camera->LookAt(glm::vec3(0.0f));
+			camera->SetPosition({ -2, -4.5, -8 });
+			camera->SetRotation({ -180, 0, 0 });
+			camera->SetScale({ 1, 1, 1 });
+			//camera->LookAt(glm::vec3(0.0f));
 
 			camera->Add<SimpleCameraControl>();
 
@@ -466,7 +468,7 @@ void DefaultSceneLayer::_CreateScene()
 		GameObject::Sptr BathroomModel = scene->CreateGameObject("BathroomModel");
 		{
 			// Set position in the scene
-			BathroomModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+			BathroomModel->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
 
 			// Add some behaviour that relies on the physics body
 			BathroomModel->Add<JumpBehaviour>();
@@ -487,7 +489,7 @@ void DefaultSceneLayer::_CreateScene()
 		GameObject::Sptr DuckModel = scene->CreateGameObject("DuckModel");
 		{
 			// Set position in the scene
-			DuckModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+			DuckModel->SetPosition(glm::vec3(4.0f, -2.0f, 0.0f));
 
 			// Add some behaviour that relies on the physics body
 			DuckModel->Add<JumpBehaviour>();
@@ -505,10 +507,31 @@ void DefaultSceneLayer::_CreateScene()
 			DuckModel->Add<TriggerVolumeEnterBehaviour>();
 		}
 
+		GameObject::Sptr FlatDuckModel = scene->CreateGameObject("FlatDuckModel");
+		{
+			// Set position in the scene
+			FlatDuckModel->SetPosition(glm::vec3(-0.5f, 0.0f, 0.0f));
+
+			// Add some behaviour that relies on the physics body
+			FlatDuckModel->Add<JumpBehaviour>();
+
+			// Create and attach a renderer for the monkey
+			RenderComponent::Sptr renderer = FlatDuckModel->Add<RenderComponent>();
+			renderer->SetMesh(FlatDuckMesh);
+			renderer->SetMaterial(DuckMaterial);
+
+			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
+			TriggerVolume::Sptr trigger = FlatDuckModel->Add<TriggerVolume>();
+			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+
+			FlatDuckModel->Add<TriggerVolumeEnterBehaviour>();
+		}
+
 		GameObject::Sptr ToiletModel = scene->CreateGameObject("ToiletModel");
 		{
 			// Set position in the scene
-			ToiletModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+			ToiletModel->SetPosition(glm::vec3(-0.5f, -1.0f, 2.5f));
 
 			// Add some behaviour that relies on the physics body
 			ToiletModel->Add<JumpBehaviour>();
@@ -526,31 +549,10 @@ void DefaultSceneLayer::_CreateScene()
 			ToiletModel->Add<TriggerVolumeEnterBehaviour>();
 		}
 
-		GameObject::Sptr DirtyToiletModel = scene->CreateGameObject("DirtyToiletModel");
-		{
-			// Set position in the scene
-			DirtyToiletModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
-
-			// Add some behaviour that relies on the physics body
-			DirtyToiletModel->Add<JumpBehaviour>();
-
-			// Create and attach a renderer for the monkey
-			RenderComponent::Sptr renderer = DirtyToiletModel->Add<RenderComponent>();
-			renderer->SetMesh(ToiletMesh);
-			renderer->SetMaterial(DirtyToiletMaterial);
-
-			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
-			TriggerVolume::Sptr trigger = DirtyToiletModel->Add<TriggerVolume>();
-			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
-			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
-
-			DirtyToiletModel->Add<TriggerVolumeEnterBehaviour>();
-		}
-
 		GameObject::Sptr SoapModel = scene->CreateGameObject("SoapModel");
 		{
 			// Set position in the scene
-			SoapModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+			SoapModel->SetPosition(glm::vec3(-3.2f, -3.50f, 4.72f));
 
 			// Add some behaviour that relies on the physics body
 			SoapModel->Add<JumpBehaviour>();
@@ -571,7 +573,7 @@ void DefaultSceneLayer::_CreateScene()
 		GameObject::Sptr SpilledSoapModel = scene->CreateGameObject("SpilledSoapModel");
 		{
 			// Set position in the scene
-			SpilledSoapModel->SetPosition(glm::vec3(5.5f, 0.0f, 1.0f));
+			SpilledSoapModel->SetPosition(glm::vec3(-4.5f, -0.2f, 0.3f));
 
 			// Add some behaviour that relies on the physics body
 			SpilledSoapModel->Add<JumpBehaviour>();
