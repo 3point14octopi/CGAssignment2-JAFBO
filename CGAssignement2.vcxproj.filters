@@ -90,6 +90,9 @@
     <ClInclude Include="src\Application\Layers\PostProcessing\OutlineEffect.h">
       <Filter>Application\Layers\PostProcessing</Filter>
     </ClInclude>
+    <ClInclude Include="src\Application\Layers\PostProcessing\ToonShaderEffect.h">
+      <Filter>Application\Layers\PostProcessing</Filter>
+    </ClInclude>
     <ClInclude Include="src\Application\Layers\PostProcessingLayer.h">
       <Filter>Application\Layers</Filter>
     </ClInclude>
@@ -121,6 +124,9 @@
       <Filter>Application\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\Gameplay\Components\Camera.h">
+      <Filter>Gameplay\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Gameplay\Components\CharacterController.h">
       <Filter>Gameplay\Components</Filter>
     </ClInclude>
     <ClInclude Include="src\Gameplay\Components\ComponentManager.h">
@@ -345,7 +351,6 @@
     <ClInclude Include="src\Utils\Windows\FileDialogs.h">
       <Filter>Utils\Windows</Filter>
     </ClInclude>
-    <ClInclude Include="src\Gameplay\Components\CharacterController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application\Application.cpp">
@@ -384,6 +389,9 @@
     <ClCompile Include="src\Application\Layers\PostProcessing\OutlineEffect.cpp">
       <Filter>Application\Layers\PostProcessing</Filter>
     </ClCompile>
+    <ClCompile Include="src\Application\Layers\PostProcessing\ToonShaderEffect.cpp">
+      <Filter>Application\Layers\PostProcessing</Filter>
+    </ClCompile>
     <ClCompile Include="src\Application\Layers\PostProcessingLayer.cpp">
       <Filter>Application\Layers</Filter>
     </ClCompile>
@@ -412,6 +420,9 @@
       <Filter>Application\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\Gameplay\Components\Camera.cpp">
+      <Filter>Gameplay\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Gameplay\Components\CharacterController.cpp">
       <Filter>Gameplay\Components</Filter>
     </ClCompile>
     <ClCompile Include="src\Gameplay\Components\GUI\GuiPanel.cpp">
@@ -598,6 +609,5 @@
       <Filter>Utils\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\entry_point.cpp" />
-    <ClCompile Include="src\Gameplay\Components\CharacterController.cpp" />
   </ItemGroup>
 </Project>

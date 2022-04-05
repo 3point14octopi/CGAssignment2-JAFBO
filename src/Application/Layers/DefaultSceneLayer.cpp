@@ -212,7 +212,7 @@ void DefaultSceneLayer::_CreateScene()
 #pragma endregion 
 
 		// Loading in a 1D LUT
-		Texture1D::Sptr toonLut = ResourceManager::CreateAsset<Texture1D>("luts/toon-1D.png"); 
+		Texture1D::Sptr toonLut = ResourceManager::CreateAsset<Texture1D>("luts/toon1-1D.png");
 		toonLut->SetWrap(WrapMode::ClampToEdge);
 
 		// Here we'll load in the cubemap, as well as a special shader to handle drawing the skybox
@@ -270,36 +270,44 @@ void DefaultSceneLayer::_CreateScene()
 			HandDirtyMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
-		Material::Sptr HandDuckMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		Material::Sptr HandDuckMaterial = ResourceManager::CreateAsset<Material>(celShader);
 		{
 			HandDuckMaterial->Name = "HandDuckMaterial";
 			HandDuckMaterial->Set("u_Material.AlbedoMap", HandDuckTex);
+			HandDuckMaterial->Set("s_ToonTerm", toonLut);
 			HandDuckMaterial->Set("u_Material.Shininess", 0.1f);
 			HandDuckMaterial->Set("u_Material.NormalMap", normalMapDefault);
+			HandDuckMaterial->Set("u_Material.Steps", 4);
 		}
 
-		Material::Sptr DuckMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		Material::Sptr DuckMaterial = ResourceManager::CreateAsset<Material>(celShader);
 		{
 			DuckMaterial->Name = "DuckMaterial";
 			DuckMaterial->Set("u_Material.AlbedoMap", DuckTex);
-			DuckMaterial->Set("u_Material.Shininess", 0.1f);
 			DuckMaterial->Set("u_Material.NormalMap", normalMapDefault);
+			DuckMaterial->Set("s_ToonTerm", toonLut);
+			DuckMaterial->Set("u_Material.Shininess", 0.1f);
+			DuckMaterial->Set("u_Material.Steps", 4);
 		}
 
-		Material::Sptr ToiletMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		Material::Sptr ToiletMaterial = ResourceManager::CreateAsset<Material>(celShader);
 		{
 			ToiletMaterial->Name = "ToiletMaterial";
 			ToiletMaterial->Set("u_Material.AlbedoMap", ToiletTex);
-			ToiletMaterial->Set("u_Material.Shininess", 0.1f);
 			ToiletMaterial->Set("u_Material.NormalMap", normalMapDefault);
+			ToiletMaterial->Set("s_ToonTerm", toonLut);
+			ToiletMaterial->Set("u_Material.Shininess", 0.1f);
+			ToiletMaterial->Set("u_Material.Steps", 4);
 		}
 
-		Material::Sptr DirtyToiletMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		Material::Sptr DirtyToiletMaterial = ResourceManager::CreateAsset<Material>(celShader);
 		{
 			DirtyToiletMaterial->Name = "DirtyToiletMaterial";
 			DirtyToiletMaterial->Set("u_Material.AlbedoMap", DirtyToiletTex);
-			DirtyToiletMaterial->Set("u_Material.Shininess", 0.1f);
 			DirtyToiletMaterial->Set("u_Material.NormalMap", normalMapDefault);
+			DirtyToiletMaterial->Set("s_ToonTerm", toonLut);
+			DirtyToiletMaterial->Set("u_Material.Shininess", 0.1f);
+			DirtyToiletMaterial->Set("u_Material.Steps", 4);
 		}
 
 		Material::Sptr SoapMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
@@ -363,16 +371,14 @@ void DefaultSceneLayer::_CreateScene()
 		// Create some lights for our scene
 		GameObject::Sptr lightParent = scene->CreateGameObject("Lights");
 
-		for (int ix = 0; ix < 50; ix++) {
-			GameObject::Sptr light = scene->CreateGameObject("Light");
-			light->SetPosition(glm::vec3(glm::diskRand(25.0f), 1.0f));
-			lightParent->AddChild(light);
+		GameObject::Sptr light = scene->CreateGameObject("Light");
+		light->SetPosition(glm::vec3(1.25f, 2.73f, 5.9f));
+		lightParent->AddChild(light);
 
-			Light::Sptr lightComponent = light->Add<Light>();
-			lightComponent->SetColor(glm::linearRand(glm::vec3(0.0f), glm::vec3(1.0f)));
-			lightComponent->SetRadius(glm::linearRand(0.1f, 10.0f));
-			lightComponent->SetIntensity(glm::linearRand(1.0f, 2.0f));
-		}
+		Light::Sptr lightComponent = light->Add<Light>();
+		lightComponent->SetColor(glm::vec3(1.0f));
+		lightComponent->SetRadius(10.0f);
+		lightComponent->SetIntensity(4.5f);
 
 		// We'll create a mesh that is a simple plane that we can resize later
 		MeshResource::Sptr planeMesh = ResourceManager::CreateAsset<MeshResource>();

@@ -123,6 +123,7 @@
     <ClInclude Include="src\Application\Layers\PostProcessing\BoxFilter5x5.h" />
     <ClInclude Include="src\Application\Layers\PostProcessing\ColorCorrectionEffect.h" />
     <ClInclude Include="src\Application\Layers\PostProcessing\OutlineEffect.h" />
+    <ClInclude Include="src\Application\Layers\PostProcessing\ToonShaderEffect.h" />
     <ClInclude Include="src\Application\Layers\PostProcessingLayer.h" />
     <ClInclude Include="src\Application\Layers\RenderLayer.h" />
     <ClInclude Include="src\Application\Timing.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="src\Application\Layers\PostProcessing\BoxFilter5x5.cpp" />
     <ClCompile Include="src\Application\Layers\PostProcessing\ColorCorrectionEffect.cpp" />
     <ClCompile Include="src\Application\Layers\PostProcessing\OutlineEffect.cpp" />
+    <ClCompile Include="src\Application\Layers\PostProcessing\ToonShaderEffect.cpp" />
     <ClCompile Include="src\Application\Layers\PostProcessingLayer.cpp" />
     <ClCompile Include="src\Application\Layers\RenderLayer.cpp" />
     <ClCompile Include="src\Application\Windows\DebugWindow.cpp" />
