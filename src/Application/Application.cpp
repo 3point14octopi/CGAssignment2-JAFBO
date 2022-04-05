@@ -51,6 +51,7 @@
 #include "Gameplay/Components/WarpBehaviour.h"
 #include "Gameplay/Components/SkinManager.h"
 #include "Gameplay/Components/SimpleScreenBehaviour.h"
+#include "Gameplay/Components/CharacterController.h"
 
 // GUI
 #include "Gameplay/Components/GUI/RectTransform.h"
@@ -289,6 +290,7 @@ void Application::_RegisterClasses()
 	ComponentManager::RegisterType<SkinManager>();
 	ComponentManager::RegisterType<SimpleScreenBehaviour>();
 	ComponentManager::RegisterType<WarpBehaviour>();
+	ComponentManager::RegisterType<CharacterController>();
 }
 
 void Application::_Load() {

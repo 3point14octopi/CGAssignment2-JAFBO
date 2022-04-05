@@ -188,7 +188,6 @@ namespace Gameplay::Physics {
 		GameObject* context = GetGameObject();
 		_scene = context->GetScene();
 		_prevScale = context->GetScale();
-
 		// Awake all our colliders to let them do initialization
 		// that requires the gameobject
 		for (auto& collider : _colliders) {

@@ -26,7 +26,7 @@ WarpBehaviour::Sptr WarpBehaviour::FromJson(const nlohmann::json& data) {
 
 
 void WarpBehaviour::InitList() {
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 3; i++) {
 
 		listChecks.push_back(0);
 	}
@@ -44,7 +44,11 @@ void WarpBehaviour::CrossOffItem(int index) {
 
 
 void WarpBehaviour::PushLines(std::vector<Gameplay::GameObject::Sptr> lineVec) {
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 3; i++) {
 		lines.push_back(lineVec[i]);
 	}
+}
+
+void WarpBehaviour::Awake() {
+	InitList();
 }

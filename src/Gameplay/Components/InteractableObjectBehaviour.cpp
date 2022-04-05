@@ -88,11 +88,11 @@ void InteractableObjectBehaviour::Update(float deltaTime) {
 			_hasBeenActivated = true;
 			_playerInTrigger = false;
 			PerformFeedback();
-			_body->GetGameObject()->Get<SkinManager>()->AddSkin(_rewardMaterial);
+			/*_body->GetGameObject()->Get<SkinManager>()->AddSkin(_rewardMaterial);
 			_body = nullptr;
 			
 			screen->Get<SimpleScreenBehaviour>()->objectivesAchieved += 1;
-			screen->Get<SimpleScreenBehaviour>()->active = true;
+			screen->Get<SimpleScreenBehaviour>()->active = true;*/
 		}
 
 	}

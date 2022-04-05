@@ -24,6 +24,8 @@ public:
 
 	MAKE_TYPENAME(WarpBehaviour);
 	 
+	virtual void Awake() override;
+
 protected:
 
 	std::vector<bool> listChecks;

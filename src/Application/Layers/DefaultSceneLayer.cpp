@@ -49,6 +49,15 @@
 #include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/SimpleCameraControl.h"
 
+//components
+#include "Gameplay/Components/InteractableObjectBehaviour.h"
+#include "Gameplay/Components/InterpolationBehaviour.h"
+#include "Gameplay/Components/WarpBehaviour.h"
+#include "Gameplay/Components/SkinManager.h"
+#include "Gameplay/Components/SimpleScreenBehaviour.h"
+#include "Gameplay/Components/CharacterController.h"
+
+
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
 #include "Gameplay/Physics/Colliders/BoxCollider.h"
@@ -85,6 +94,8 @@ DefaultSceneLayer::~DefaultSceneLayer() = default;
 void DefaultSceneLayer::OnAppLoad(const nlohmann::json& config) {
 	_CreateScene();
 }
+
+
 
 void DefaultSceneLayer::_CreateScene()
 {
@@ -152,20 +163,22 @@ void DefaultSceneLayer::_CreateScene()
 		Texture2D::Sptr HandCleanTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/HandClean.png");
 		Texture2D::Sptr HandDirtyTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/HandPoo.png");
 		Texture2D::Sptr HandDuckTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/HandDucky.png");
+
+
 		Texture2D::Sptr BathroomTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/BathroomTexture.png");
 		Texture2D::Sptr DuckTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/Ducky.png");
 		Texture2D::Sptr ToiletTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/Toilet.png");
-		Texture2D::Sptr DirtyToiletTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/ShitToilet.png");
 		Texture2D::Sptr SoapTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/soap.png");
-		Texture2D::Sptr SpilledSoapTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/SpilledSoap.png");
-		Texture2D::Sptr LineTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/Line.png");
 
-		Texture2D::Sptr    boxTexture   = ResourceManager::CreateAsset<Texture2D>("textures/box-diffuse.png");
-		Texture2D::Sptr    boxSpec      = ResourceManager::CreateAsset<Texture2D>("textures/box-specular.png");
-		Texture2D::Sptr    monkeyTex    = ResourceManager::CreateAsset<Texture2D>("textures/monkey-uvMap.png");
-		Texture2D::Sptr    leafTex      = ResourceManager::CreateAsset<Texture2D>("textures/leaves.png");
-		leafTex->SetMinFilter(MinFilter::Nearest);
-		leafTex->SetMagFilter(MagFilter::Nearest);
+		Texture2D::Sptr DirtyToiletTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/ShitToilet.png");
+		Texture2D::Sptr SpilledSoapTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/SpilledSoap.png");
+
+		Texture2D::Sptr LineTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/red.jpg");
+		Texture2D::Sptr ListTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/ListBathroom.png");
+		Texture2D::Sptr DuckScreenTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/screens/Ducky.png");
+		Texture2D::Sptr ToiletScreenTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/screens/Toilet.png");
+		Texture2D::Sptr SoapScreenTex = ResourceManager::CreateAsset<Texture2D>("gameTextures/screens/Soap.png");
+
 
 		// Load some images for drag n' drop
 		ResourceManager::CreateAsset<Texture2D>("textures/flashlight.png");
@@ -224,16 +237,6 @@ void DefaultSceneLayer::_CreateScene()
 		// Configure the color correction LUT
 		scene->SetColorLUT(lut);
 
-		// Create our materials
-		// This will be our box material, with no environment reflections
-		Material::Sptr boxMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
-		{
-			boxMaterial->Name = "Box";
-			boxMaterial->Set("u_Material.AlbedoMap", boxTexture);
-			boxMaterial->Set("u_Material.Shininess", 0.1f);
-			boxMaterial->Set("u_Material.NormalMap", normalMapDefault);
-		}
-
 		////////////////////////////////////////////////////////////////////
 		Material::Sptr BathroomMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
 		{
@@ -253,10 +256,10 @@ void DefaultSceneLayer::_CreateScene()
 
 		Material::Sptr HandCleanMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
 		{
-			boxMaterial->Name = "Box";
-			boxMaterial->Set("u_Material.AlbedoMap", HandCleanTex);
-			boxMaterial->Set("u_Material.Shininess", 0.1f);
-			boxMaterial->Set("u_Material.NormalMap", normalMapDefault);
+			HandCleanMaterial->Name = "Box";
+			HandCleanMaterial->Set("u_Material.AlbedoMap", HandCleanTex);
+			HandCleanMaterial->Set("u_Material.Shininess", 0.1f);
+			HandCleanMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 		Material::Sptr HandDirtyMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
@@ -302,7 +305,7 @@ void DefaultSceneLayer::_CreateScene()
 		Material::Sptr SoapMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
 		{
 			SoapMaterial->Name = "SoapMaterial";
-			SoapMaterial->Set("u_Material.AlbedoMap", boxTexture);
+			SoapMaterial->Set("u_Material.AlbedoMap", SoapTex);
 			SoapMaterial->Set("u_Material.Shininess", 0.1f);
 			SoapMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
@@ -323,110 +326,39 @@ void DefaultSceneLayer::_CreateScene()
 			LineMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
-
-
-		////////////////////////////////////////////////////////////////////
-
-		// This will be the reflective material, we'll make the whole thing 90% reflective
-		Material::Sptr monkeyMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
+		Material::Sptr ListMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
 		{
-			monkeyMaterial->Name = "Monkey";
-			monkeyMaterial->Set("u_Material.AlbedoMap", monkeyTex);
-			monkeyMaterial->Set("u_Material.NormalMap", normalMapDefault);
-			monkeyMaterial->Set("u_Material.Shininess", 0.5f);
+			ListMaterial->Name = "LineMaterial";
+			ListMaterial->Set("u_Material.AlbedoMap", ListTex);
+			ListMaterial->Set("u_Material.Shininess", 0.1f);
+			ListMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
-		// This will be the reflective material, we'll make the whole thing 50% reflective
-		Material::Sptr testMaterial = ResourceManager::CreateAsset<Material>(deferredForward); 
+		Material::Sptr DuckScreenMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
 		{
-			testMaterial->Name = "Box-Specular";
-			testMaterial->Set("u_Material.AlbedoMap", boxTexture); 
-			testMaterial->Set("u_Material.Specular", boxSpec);
-			testMaterial->Set("u_Material.NormalMap", normalMapDefault);
+			DuckScreenMaterial->Name = "LineMaterial";
+			DuckScreenMaterial->Set("u_Material.AlbedoMap", DuckScreenTex);
+			DuckScreenMaterial->Set("u_Material.Shininess", 0.1f);
+			DuckScreenMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
-		// Our foliage vertex shader material 
-		Material::Sptr foliageMaterial = ResourceManager::CreateAsset<Material>(foliageShader);
+		Material::Sptr ToiletScreenMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
 		{
-			foliageMaterial->Name = "Foliage Shader";
-			foliageMaterial->Set("u_Material.AlbedoMap", leafTex);
-			foliageMaterial->Set("u_Material.Shininess", 0.1f);
-			foliageMaterial->Set("u_Material.DiscardThreshold", 0.1f);
-			foliageMaterial->Set("u_Material.NormalMap", normalMapDefault);
-
-			foliageMaterial->Set("u_WindDirection", glm::vec3(1.0f, 1.0f, 0.0f));
-			foliageMaterial->Set("u_WindStrength", 0.5f);
-			foliageMaterial->Set("u_VerticalScale", 1.0f);
-			foliageMaterial->Set("u_WindSpeed", 1.0f);
+			ToiletScreenMaterial->Name = "LineMaterial";
+			ToiletScreenMaterial->Set("u_Material.AlbedoMap", ToiletScreenTex);
+			ToiletScreenMaterial->Set("u_Material.Shininess", 0.1f);
+			ToiletScreenMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
-		// Our toon shader material
-		Material::Sptr toonMaterial = ResourceManager::CreateAsset<Material>(celShader);
+		Material::Sptr SoapScreenMaterial = ResourceManager::CreateAsset<Material>(deferredForward);
 		{
-			toonMaterial->Name = "Toon"; 
-			toonMaterial->Set("u_Material.AlbedoMap", boxTexture);
-			toonMaterial->Set("u_Material.NormalMap", normalMapDefault);
-			toonMaterial->Set("s_ToonTerm", toonLut);
-			toonMaterial->Set("u_Material.Shininess", 0.1f); 
-			toonMaterial->Set("u_Material.Steps", 8);
+			SoapScreenMaterial->Name = "LineMaterial";
+			SoapScreenMaterial->Set("u_Material.AlbedoMap", SoapScreenTex);
+			SoapScreenMaterial->Set("u_Material.Shininess", 0.1f);
+			SoapScreenMaterial->Set("u_Material.NormalMap", normalMapDefault);
 		}
 
 
-		Material::Sptr displacementTest = ResourceManager::CreateAsset<Material>(displacementShader);
-		{
-			Texture2D::Sptr displacementMap = ResourceManager::CreateAsset<Texture2D>("textures/displacement_map.png");
-			Texture2D::Sptr normalMap       = ResourceManager::CreateAsset<Texture2D>("textures/normal_map.png");
-			Texture2D::Sptr diffuseMap      = ResourceManager::CreateAsset<Texture2D>("textures/bricks_diffuse.png");
-
-			displacementTest->Name = "Displacement Map";
-			displacementTest->Set("u_Material.AlbedoMap", diffuseMap);
-			displacementTest->Set("u_Material.NormalMap", normalMap);
-			displacementTest->Set("s_Heightmap", displacementMap);
-			displacementTest->Set("u_Material.Shininess", 0.5f);
-			displacementTest->Set("u_Scale", 0.1f);
-		}
-
-		Material::Sptr grey = ResourceManager::CreateAsset<Material>(deferredForward);
-		{
-			grey->Name = "Grey";
-			grey->Set("u_Material.AlbedoMap", solidGreyTex);
-			grey->Set("u_Material.Specular", solidBlackTex);
-			grey->Set("u_Material.NormalMap", normalMapDefault);
-		}
-
-		Material::Sptr whiteBrick = ResourceManager::CreateAsset<Material>(deferredForward);
-		{
-			whiteBrick->Name = "White Bricks";
-			whiteBrick->Set("u_Material.AlbedoMap", ResourceManager::CreateAsset<Texture2D>("textures/displacement_map.png"));
-			whiteBrick->Set("u_Material.Specular", solidGrey);
-			whiteBrick->Set("u_Material.NormalMap", ResourceManager::CreateAsset<Texture2D>("textures/normal_map.png"));
-		}
-
-		Material::Sptr normalmapMat = ResourceManager::CreateAsset<Material>(deferredForward);
-		{
-			Texture2D::Sptr normalMap       = ResourceManager::CreateAsset<Texture2D>("textures/normal_map.png");
-			Texture2D::Sptr diffuseMap      = ResourceManager::CreateAsset<Texture2D>("textures/bricks_diffuse.png");
-
-			normalmapMat->Name = "Tangent Space Normal Map";
-			normalmapMat->Set("u_Material.AlbedoMap", diffuseMap);
-			normalmapMat->Set("u_Material.NormalMap", normalMap);
-			normalmapMat->Set("u_Material.Shininess", 0.5f);
-			normalmapMat->Set("u_Scale", 0.1f);
-		}
-
-		Material::Sptr multiTextureMat = ResourceManager::CreateAsset<Material>(multiTextureShader);
-		{
-			Texture2D::Sptr sand  = ResourceManager::CreateAsset<Texture2D>("textures/terrain/sand.png");
-			Texture2D::Sptr grass = ResourceManager::CreateAsset<Texture2D>("textures/terrain/grass.png");
-
-			multiTextureMat->Name = "Multitexturing";
-			multiTextureMat->Set("u_Material.DiffuseA", sand);
-			multiTextureMat->Set("u_Material.DiffuseB", grass);
-			multiTextureMat->Set("u_Material.NormalMapA", normalMapDefault);
-			multiTextureMat->Set("u_Material.NormalMapB", normalMapDefault);
-			multiTextureMat->Set("u_Material.Shininess", 0.5f);
-			multiTextureMat->Set("u_Scale", 0.1f); 
-		}
 
 		// Create some lights for our scene
 		GameObject::Sptr lightParent = scene->CreateGameObject("Lights");
@@ -452,143 +384,225 @@ void DefaultSceneLayer::_CreateScene()
 		sphere->GenerateMesh();
 
 		// Set up the scene's camera
+
 		GameObject::Sptr camera = scene->MainCamera->GetGameObject()->SelfRef();
 		{
-			camera->SetPosition({ -2, -4.5, -8 });
-			camera->SetRotation({ -180, 0, 0 });
-			camera->SetScale({ 1, 1, 1 });
-			//camera->LookAt(glm::vec3(0.0f));
-
-			camera->Add<SimpleCameraControl>();
-
+			camera->SetPosition(glm::vec3(9.15f, 9.41f, 7.85f));
+			camera->SetRotation(glm::vec3(80.351f, 0.0f, 142.0f));
+			camera->SetScale(glm::vec3(0.69f, 0.769f, 0.83f));
 		}
 
 		/////////////////////////////////////////////////////////////////////
+		
+		GameObject::Sptr floorManager = scene->CreateGameObject("Floor Manager");
+		{
+			WarpBehaviour::Sptr warp = floorManager->Add<WarpBehaviour>();
+
+			TriggerVolume::Sptr volume = floorManager->Add<TriggerVolume>();
+			SphereCollider::Sptr collider = SphereCollider::Create(1.8);
+			collider->SetPosition(glm::vec3(3.5f, 3.5f, 0.f));
+			volume->AddCollider(collider);
+		}
+
+		GameObject::Sptr extraScreen = scene->CreateGameObject("Interact Screen");
+		{
+			MeshResource::Sptr screenMesh = ResourceManager::CreateAsset<MeshResource>();
+			screenMesh->AddParam(MeshBuilderParam::CreatePlane(glm::vec3(0.0f, 0.0f, 0.0f), UNIT_Z, UNIT_X, glm::vec2(18.0f, 10.0f), glm::vec2(1.0f)));
+			screenMesh->GenerateMesh();
+			extraScreen->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
+			extraScreen->SetRotation(glm::vec3(80.351f, 0.0f, 142.00f));
+
+			RenderComponent::Sptr renderer = extraScreen->Add<RenderComponent>();
+			renderer->SetMesh(screenMesh);
+			renderer->SetMaterial(ListMaterial);
+
+			InterpolationBehaviour::Sptr interp = extraScreen->Add<InterpolationBehaviour>();
+			interp->AddBehaviourScript("interp_scripts/menu_behaviour.txt");
+			interp->ToggleBehaviour("Lowering", false);
+			interp->PauseOrResumeCurrentBehaviour();
+
+		}
+
+		GameObject::Sptr list = scene->CreateGameObject("List");
+		{
+			MeshResource::Sptr listMesh = ResourceManager::CreateAsset<MeshResource>();
+			listMesh->AddParam(MeshBuilderParam::CreatePlane(glm::vec3(0.0f, 0.0f, 0.0f), UNIT_Z, UNIT_X, glm::vec2(4.0f, 10.0f), glm::vec2(1.0f)));
+			listMesh->GenerateMesh();
+			list->SetPosition(glm::vec3(10.75f, 1.96f, 6.56f));
+			list->SetRotation(glm::vec3(80.351f, 0.0f, 142.00f));
+
+			RenderComponent::Sptr renderer = list->Add<RenderComponent>();
+			renderer->SetMesh(listMesh);
+			renderer->SetMaterial(ListMaterial);
+
+			SimpleScreenBehaviour::Sptr feedbackScreen = extraScreen->Add<SimpleScreenBehaviour>();
+			feedbackScreen->targetObjectives = 5;
+
+
+		}
+
+		GameObject::Sptr lineOne = scene->CreateGameObject("Line One");
+		{
+			MeshResource::Sptr lineMesh = ResourceManager::CreateAsset<MeshResource>();
+			lineMesh->AddParam(MeshBuilderParam::CreatePlane(glm::vec3(0.0f, 0.0f, 0.0f), UNIT_Z, UNIT_X, glm::vec2(3.0f, 1.0f), glm::vec2(1.0f)));
+			lineMesh->GenerateMesh();
+
+			RenderComponent::Sptr renderer = lineOne->Add<RenderComponent>();
+			renderer->SetMesh(lineMesh);
+			renderer->SetMaterial(LineMaterial);
+
+			lineOne->SetPosition(glm::vec3(10.45f, 1.72f, 108.88f));
+			lineOne->SetRotation(glm::vec3(80.351f, 0.0f, 142.00f));
+		}
+
+		GameObject::Sptr lineTwo = scene->CreateGameObject("Line Two");
+		{
+			MeshResource::Sptr lineMesh = ResourceManager::CreateAsset<MeshResource>();
+			lineMesh->AddParam(MeshBuilderParam::CreatePlane(glm::vec3(0.0f, 0.0f, 0.0f), UNIT_Z, UNIT_X, glm::vec2(3.0f, 1.0f), glm::vec2(1.0f)));
+			lineMesh->GenerateMesh();
+
+			RenderComponent::Sptr renderer = lineTwo->Add<RenderComponent>();
+			renderer->SetMesh(lineMesh);
+			renderer->SetMaterial(LineMaterial);
+
+			lineTwo->SetPosition(glm::vec3(10.6f, 1.93f, 107.33f));
+			lineTwo->SetRotation(glm::vec3(80.351f, 0.0f, 142.00f));
+		}
+
+		GameObject::Sptr lineThree = scene->CreateGameObject("Line Three");
+		{
+			MeshResource::Sptr lineMesh = ResourceManager::CreateAsset<MeshResource>();
+			lineMesh->AddParam(MeshBuilderParam::CreatePlane(glm::vec3(0.0f, 0.0f, 0.0f), UNIT_Z, UNIT_X, glm::vec2(3.0f, 1.0f), glm::vec2(1.0f)));
+			lineMesh->GenerateMesh();
+
+			RenderComponent::Sptr renderer = lineThree->Add<RenderComponent>();
+			renderer->SetMesh(lineMesh);
+			renderer->SetMaterial(LineMaterial);
+
+			lineThree->SetPosition(glm::vec3(10.79f, 2.18f, 105.6f));
+			lineThree->SetRotation(glm::vec3(80.351f, 0.0f, 142.00f));
+		}
+
+		std::vector<GameObject::Sptr>lines{ lineOne, lineTwo, lineThree};
+		floorManager->Get<WarpBehaviour>()->PushLines(lines);
 
 		GameObject::Sptr BathroomModel = scene->CreateGameObject("BathroomModel");
 		{
 			// Set position in the scene
-			BathroomModel->SetPosition(glm::vec3(0.0f, 0.0f, 0.0f));
-
-			// Add some behaviour that relies on the physics body
-			BathroomModel->Add<JumpBehaviour>();
+			BathroomModel->SetPosition(glm::vec3(2.0f, 2.0f, 2.0f));
+			BathroomModel->SetRotation(glm::vec3(0.0f, 0.0f, -30.0f));
 
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = BathroomModel->Add<RenderComponent>();
 			renderer->SetMesh(BathroomMesh);
 			renderer->SetMaterial(BathroomMaterial);
-
-			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
-			TriggerVolume::Sptr trigger = BathroomModel->Add<TriggerVolume>();
-			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
-			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
-
-			BathroomModel->Add<TriggerVolumeEnterBehaviour>();
 		}
 
 		GameObject::Sptr DuckModel = scene->CreateGameObject("DuckModel");
 		{
 			// Set position in the scene
-			DuckModel->SetPosition(glm::vec3(4.0f, -2.0f, 0.0f));
-
-			// Add some behaviour that relies on the physics body
-			DuckModel->Add<JumpBehaviour>();
-
-			// Create and attach a renderer for the monkey
+			DuckModel->SetPosition(glm::vec3(-1.54f, 4.36f, 3.72f));
+			DuckModel->SetRotation(glm::vec3(90.0f, 0.0f, 0.0f));
+			DuckModel->SetScale(glm::vec3(0.4, 0.4, 0.4));
 			RenderComponent::Sptr renderer = DuckModel->Add<RenderComponent>();
 			renderer->SetMesh(DuckMesh);
 			renderer->SetMaterial(DuckMaterial);
 
-			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
-			TriggerVolume::Sptr trigger = DuckModel->Add<TriggerVolume>();
-			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
-			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+			TriggerVolume::Sptr volume = DuckModel->Add<TriggerVolume>();
+			SphereCollider::Sptr collider = SphereCollider::Create(0.91f);
+			volume->AddCollider(collider);
 
-			DuckModel->Add<TriggerVolumeEnterBehaviour>();
+			InteractableObjectBehaviour::Sptr interactions = DuckModel->Add<InteractableObjectBehaviour>();
+			interactions->AddRewardMaterial(HandDuckMaterial);
+
+	
+			interactions->AddFeedbackBehaviour((InteractionFeedback(DuckScreenMaterial, extraScreen)));
+			InteractionTForm screenTF(InteractionTForm::tformt::pos, glm::vec3(5.87f, 5.79f, 6.9f));
+			interactions->AddFeedbackBehaviour((InteractionFeedback(std::vector<InteractionTForm>{screenTF}, extraScreen)));
+			interactions->AddFeedbackBehaviour((InteractionFeedback(FlatDuckMesh, DuckModel)));
+			InteractionTForm duckPos(InteractionTForm::tformt::pos, glm::vec3(1.87f, 1.46f, 1.98f));
+			InteractionTForm duckRot(InteractionTForm::tformt::rot, glm::vec3(90.0f, 0.0f, 0.0f));
+			interactions->AddFeedbackBehaviour((InteractionFeedback(std::vector<InteractionTForm>{duckPos, duckRot}, DuckModel)));
+			
+			interactions->AddFeedbackBehaviour((InteractionFeedback(1)));
 		}
 
-		GameObject::Sptr FlatDuckModel = scene->CreateGameObject("FlatDuckModel");
-		{
-			// Set position in the scene
-			FlatDuckModel->SetPosition(glm::vec3(-0.5f, 0.0f, 0.0f));
-
-			// Add some behaviour that relies on the physics body
-			FlatDuckModel->Add<JumpBehaviour>();
-
-			// Create and attach a renderer for the monkey
-			RenderComponent::Sptr renderer = FlatDuckModel->Add<RenderComponent>();
-			renderer->SetMesh(FlatDuckMesh);
-			renderer->SetMaterial(DuckMaterial);
-
-			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
-			TriggerVolume::Sptr trigger = FlatDuckModel->Add<TriggerVolume>();
-			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
-			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
-
-			FlatDuckModel->Add<TriggerVolumeEnterBehaviour>();
-		}
 
 		GameObject::Sptr ToiletModel = scene->CreateGameObject("ToiletModel");
 		{
 			// Set position in the scene
-			ToiletModel->SetPosition(glm::vec3(-0.5f, -1.0f, 2.5f));
+			ToiletModel->SetPosition(glm::vec3(1.13f, -0.47f, 2.97f));
+			ToiletModel->SetRotation(glm::vec3(90.0f, 0.0f, 59.00f));
 
-			// Add some behaviour that relies on the physics body
-			ToiletModel->Add<JumpBehaviour>();
-
-			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = ToiletModel->Add<RenderComponent>();
 			renderer->SetMesh(ToiletMesh);
 			renderer->SetMaterial(ToiletMaterial);
 
-			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
-			TriggerVolume::Sptr trigger = ToiletModel->Add<TriggerVolume>();
-			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
-			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+			TriggerVolume::Sptr volume = ToiletModel->Add<TriggerVolume>();
+			SphereCollider::Sptr collider = SphereCollider::Create(1.26f);
+			volume->AddCollider(collider);
 
-			ToiletModel->Add<TriggerVolumeEnterBehaviour>();
+			InteractableObjectBehaviour::Sptr interactions = ToiletModel->Add<InteractableObjectBehaviour>();
+			interactions->AddRewardMaterial(HandDirtyMaterial);
+
+			interactions->AddFeedbackBehaviour((InteractionFeedback(ToiletScreenMaterial, extraScreen)));
+			InteractionTForm screenTF(InteractionTForm::tformt::pos, glm::vec3(5.87f, 5.79f, 6.9f));
+			interactions->AddFeedbackBehaviour((InteractionFeedback(std::vector<InteractionTForm>{screenTF}, extraScreen)));
+			interactions->AddFeedbackBehaviour((InteractionFeedback(DirtyToiletMaterial, ToiletModel)));
+
+
+			interactions->AddFeedbackBehaviour((InteractionFeedback(0)));
 		}
 
 		GameObject::Sptr SoapModel = scene->CreateGameObject("SoapModel");
 		{
 			// Set position in the scene
-			SoapModel->SetPosition(glm::vec3(-3.2f, -3.50f, 4.72f));
+			SoapModel->SetPosition(glm::vec3(4.41f, -4.67f, 5.64f));
+			SoapModel->SetRotation(glm::vec3(90.0f, 0.00f, -75.00f));
+			SoapModel->SetScale(glm::vec3(0.5f, 0.5f, 0.5f));
 
-			// Add some behaviour that relies on the physics body
-			SoapModel->Add<JumpBehaviour>();
-
+	
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = SoapModel->Add<RenderComponent>();
 			renderer->SetMesh(SoapMesh);
 			renderer->SetMaterial(SoapMaterial);
 
-			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
-			TriggerVolume::Sptr trigger = SoapModel->Add<TriggerVolume>();
-			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
-			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+			TriggerVolume::Sptr volume = SoapModel->Add<TriggerVolume>();
+			SphereCollider::Sptr collider = SphereCollider::Create(1.01f);
+			volume->AddCollider(collider);
 
-			SoapModel->Add<TriggerVolumeEnterBehaviour>();
+			InteractableObjectBehaviour::Sptr interactions = SoapModel->Add<InteractableObjectBehaviour>();
+			interactions->AddRewardMaterial(HandCleanMaterial);
+
+
+			interactions->AddFeedbackBehaviour((InteractionFeedback(SoapScreenMaterial, extraScreen)));
+			InteractionTForm screenTF(InteractionTForm::tformt::pos, glm::vec3(5.87f, 5.79f, 6.9f));
+			interactions->AddFeedbackBehaviour((InteractionFeedback(std::vector<InteractionTForm>{screenTF}, extraScreen)));
+			interactions->AddFeedbackBehaviour(InteractionFeedback(SpilledMesh, SoapModel));
+			interactions->AddFeedbackBehaviour(InteractionFeedback(SpilledSoapMaterial, SoapModel));
+			InteractionTForm soapPos(InteractionTForm::tformt::pos, glm::vec3(4.73f, -1.13f, 2.02f));
+			InteractionTForm soapRot(InteractionTForm::tformt::rot, glm::vec3(90.0f, 0.0f, 35.0f));
+			interactions->AddFeedbackBehaviour(InteractionFeedback(std::vector<InteractionTForm>{soapPos, soapRot}, SoapModel));
+
+			interactions->AddFeedbackBehaviour((InteractionFeedback(2)));
 		}
 
-		GameObject::Sptr SpilledSoapModel = scene->CreateGameObject("SpilledSoapModel");
+		GameObject::Sptr hand = scene->CreateGameObject("Idle Hand");
 		{
-			// Set position in the scene
-			SpilledSoapModel->SetPosition(glm::vec3(-4.5f, -0.2f, 0.3f));
-
-			// Add some behaviour that relies on the physics body
-			SpilledSoapModel->Add<JumpBehaviour>();
+			hand->SetPosition(glm::vec3(5.5f, -0.16f, 2.66f));
 
 			// Create and attach a renderer for the monkey
-			RenderComponent::Sptr renderer = SpilledSoapModel->Add<RenderComponent>();
-			renderer->SetMesh(SpilledMesh);
-			renderer->SetMaterial(SpilledSoapMaterial);
+			RenderComponent::Sptr renderer = hand->Add<RenderComponent>();
+			renderer->SetMesh(HandMesh);
+			renderer->SetMaterial(HandMaterial);
 
-			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
-			TriggerVolume::Sptr trigger = SpilledSoapModel->Add<TriggerVolume>();
-			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
-			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+			RigidBody::Sptr physics = hand->Add<RigidBody>(RigidBodyType::Dynamic);
+			physics->AddCollider(BoxCollider::Create(glm::vec3(1.7, 0.9, 0.8)));
+		
 
-			SpilledSoapModel->Add<TriggerVolumeEnterBehaviour>();
+			CharacterController::Sptr controller = hand->Add<CharacterController>();
+
+			SkinManager::Sptr skinSwapper = hand->Add<SkinManager>();
 		}
 
 

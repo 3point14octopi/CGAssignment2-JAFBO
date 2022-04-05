@@ -16,7 +16,7 @@ ParticleSystem::ParticleSystem() :
 	_currentFeedbackBuffer(1),
 	_updateShader(nullptr),
 	_renderShader(nullptr),
-	_gravity({ 0, 0, -9.81f }),
+	_gravity({ 0, 0, 0 }),
 	_emitters()
 { }
 

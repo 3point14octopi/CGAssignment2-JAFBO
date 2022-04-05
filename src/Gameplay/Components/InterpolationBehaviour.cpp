@@ -3,6 +3,7 @@
 #include "Utils/ImGuiHelper.h"
 #include "Utils/JsonGlmHelpers.h"
 #include "Gameplay/Scene.h"
+#include "Gameplay/InputEngine.h"
 #include "GLFW/glfw3.h"
 
 #include <fstream>
@@ -81,6 +82,10 @@ void InterpolationBehaviour::PauseOrResumeCurrentBehaviour() {
 void InterpolationBehaviour::Update(float deltaTime) {
 	if (_isRunning) {
 		InterpolationManager(deltaTime);
+	}
+	if (InputEngine::GetKeyState(GLFW_KEY_ENTER) == ButtonState::Down) {
+		std::cout << "You pressed da button";
+		GetGameObject()->SetPosition(glm::vec3(GetGameObject()->GetPosition().x, GetGameObject()->GetPosition().y, -50));
 	}
 }
 
