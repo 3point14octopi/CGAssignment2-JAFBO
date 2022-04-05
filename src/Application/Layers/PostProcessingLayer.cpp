@@ -7,7 +7,9 @@
 #include "PostProcessing/BoxFilter3x3.h"
 #include "PostProcessing/BoxFilter5x5.h"
 #include "PostProcessing/OutlineEffect.h"
-#include "PostProcessing/ToonShaderEffect.h"
+#include "PostProcessing/Bloom.h"
+#include "PostProcessing/RimLighting.h"
+#include "PostProcessing/BBlur.h"
 
 PostProcessingLayer::PostProcessingLayer() :
 	ApplicationLayer()
@@ -28,12 +30,11 @@ void PostProcessingLayer::AddEffect(const Effect::Sptr& effect) {
 
 void PostProcessingLayer::OnAppLoad(const nlohmann::json& config)
 {
-	// Loads some effects in
+	// Loads some effects in 
+	_effects.push_back(std::make_shared<RimLighting>());
 	_effects.push_back(std::make_shared<ColorCorrectionEffect>());
-	_effects.push_back(std::make_shared<BoxFilter3x3>());
-	_effects.push_back(std::make_shared<BoxFilter5x5>());
-	//_effects.push_back(std::make_shared<OutlineEffect>());
-	_effects.push_back(std::make_shared<ToonShaderEffect>());
+	_effects.push_back(std::make_shared<BBlur>());
+	_effects.push_back(std::make_shared<Bloom>());
 
 	Application& app = Application::Get();
 	const glm::uvec4& viewport = app.GetPrimaryViewport();
@@ -76,6 +77,9 @@ void PostProcessingLayer::OnPostRender()
 	// Stores the input FBO to the effect, we start with the renderlayer's output 
 	Framebuffer::Sptr current = output;
 
+	//we will store our pre-blur pass for Bloom here
+	Framebuffer::Sptr preblur = output;
+
 	// Disable depth testing and depth writing, as well as blending
 	glDisable(GL_DEPTH_TEST);
 	glDepthMask(false);
@@ -88,12 +92,17 @@ void PostProcessingLayer::OnPostRender()
 	for (const auto& effect : _effects) {
 		// Only render if it's enabled
 		if (effect->Enabled) {
+
 			// Bind the FBO and make sure we're rendering to the whole thing
 			effect->_output->Bind();
 			glViewport(0, 0, effect->_output->GetWidth(), effect->_output->GetHeight());
 
 			// Bind color 0 from previous pass to texture slot 0 so our effects can access
 			current->BindAttachment(RenderTargetAttachment::Color0, 0);
+			
+			if (effect->Name == ("Underwhelming Bloom")) {
+				preblur->BindAttachment(RenderTargetAttachment::Color0, 1);
+			}
 
 			// Apply the effect and render the fullscreen quad
 			effect->Apply(gBuffer);
