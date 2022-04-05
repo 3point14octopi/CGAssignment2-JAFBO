@@ -24,7 +24,7 @@ RenderLayer::RenderLayer() :
 	_blitFbo(true),
 	_frameUniforms(nullptr),
 	_instanceUniforms(nullptr),
-	_renderFlags(RenderFlags::None),
+	_renderFlags(RenderFlags::AmbientSpecularShader),
 	_clearColor({ 0.1f, 0.1f, 0.1f, 1.0f })
 {
 	Name = "Rendering";
@@ -314,6 +314,10 @@ void RenderLayer::_Composite()
 
 	// We want to switch to our compositing shader
 	_compositingShader->Bind();
+
+
+	_compositingShader->SetUniform("s_Ambient", scene->GetAmbientLight());
+
 
 	// Switch rendering to output
 	_outputBuffer->Bind();
